@@ -7,12 +7,14 @@ if (first()) {
     runOnTick(1)
     
     Model = "models/props_phx/life_support/crylaser_small.mdl"
+    findClearWhiteList()
+    findClearBlackList()
     findIncludePlayerProps(owner())
     
     I = 0
     F = 1 # rotational frequency
-    A = 100 # size of ellipse
-    B = 100 # size of ellipse
+    A = 150 # size of ellipse
+    B = 150 # size of ellipse
     
     J = 1 # velocity damping
     K = 10  # positional error proportionality
@@ -20,34 +22,42 @@ if (first()) {
     M = 30  # rotational velocity damping
     
     CenterPos = entity():pos() + vec(0,0,100)
+
+    timer("find", 10)
 }
 
-I+=1
-
-if (findCanQuery()) {
-    findByModel(Model)
-    Props = findToArray()
-}
-
-AimPos = owner():aimPos()
-
-foreach (Index, Prop:entity = Props) {
-    MaxIndex = Props:count()
-    Phase = 360*(Index/MaxIndex)
-
-    CurPos = Prop:pos()
-    TargetPos = CenterPos + vec(A*sin(I*F + Phase), B*cos(I*F + Phase), 0)
-    PosErr = TargetPos - CurPos
-    Vel = Prop:vel()
-    Force = Prop:mass()*(PosErr*K - Vel*J)
-    Prop:applyForce(Force)
-    
-    #########################################
-    
-    CurAng = quat(Prop:angles())
-    TarDirVec = AimPos - CurPos
-    TarDirAng = quat(TarDirVec:toAngle() + ang(90,0,0))
-    Torque = Prop:toLocal(rotationVector(TarDirAng/CurAng) + Prop:pos())
-    Torque = L*Torque - M*Prop:angVelVector()
-    Prop:applyTorque(Torque*Prop:inertia())
+if (perf()) {
+    if (clk("find")) {
+        stoptimer("find")
+        timer("find", 10)
+        if (findCanQuery()) {
+            findExcludeEntities(Props)
+            findByModel(Model)
+            Props:pushEntity(findResult(1))
+        }
+    } elseif (tickClk()) {
+        I+=1
+        AimPos = owner():aimPos()
+        
+        foreach (Index, Prop:entity = Props) {
+            MaxIndex = Props:count()
+            Phase = 360*(Index/MaxIndex)
+        
+            CurPos = Prop:pos()
+            TargetPos = CenterPos + vec(A*sin(I*F + Phase), B*cos(I*F + Phase), 0)
+            PosErr = TargetPos - CurPos
+            Vel = Prop:vel()
+            Force = Prop:mass()*(PosErr*K - Vel*J)
+            Prop:applyForce(Force)
+            
+            #########################################
+            
+            CurAng = quat(Prop:angles())
+            TarDirVec = AimPos - CurPos
+            TarDirAng = quat(TarDirVec:toAngle() + ang(90,0,0))
+            Torque = Prop:toLocal(rotationVector(TarDirAng/CurAng) + Prop:pos())
+            Torque = L*Torque - M*Prop:angVelVector()
+            Prop:applyTorque(Torque*Prop:inertia())
+        }
+    }
 }

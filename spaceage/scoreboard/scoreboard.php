@@ -1,6 +1,6 @@
 <?php
 
-include_once('./steamID.php');
+include_once('./libs/steamID.php');
 
 $factions = array(
   "freelancer" => "Freelancers",

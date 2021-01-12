@@ -1,2 +1,1 @@
-# E2s
-A collection of my Garry's Mod E2 scripts
+This repo is a collection of my Garry's Mod related work

@@ -1,0 +1,103 @@
+# holo animation library
+
+@persist [Holo_anim_queue]:table
+
+#####################
+# PRIVATE FUNCTIONS #
+#####################
+
+function void holo_anim_setup() {
+	Holo_anim_queue = table()	# [target][ {"type":string, "target":number, "start":number, "end":number, "cur_tick":number, "duration":number} ]
+}
+
+function void holo_anim_interpolate_properties(Target:number, Start:number, End:number, Percent:number) {
+	# interpolate holoEntity(Target) Percent (0 <= x <= 1) between holoEntity(Start) and holoEntity(End)
+	
+	local Percent = clamp(Percent, 0, 1)
+	
+	# holograms
+	local StartHolo = holoEntity(Start)
+	local EndHolo = holoEntity(End)
+	
+	# position
+	local Pos = StartHolo:pos() + Percent*(EndHolo:pos() - StartHolo:pos())
+	holoPos(Target, Pos)
+	
+	# rotation, need to find shortest path between the two
+	local AngDelta_p = ((EndHolo:angles():pitch() - StartHolo:angles():pitch()) + 180)%360 - 180
+	local AngDelta_y = ((EndHolo:angles():yaw() - StartHolo:angles():yaw()) + 180)%360 - 180
+	local AngDelta_r = ((EndHolo:angles():roll() - StartHolo:angles():roll()) + 180)%360 - 180
+	local AngDelta = ang(AngDelta_p,AngDelta_y,AngDelta_r)
+	local Ang = StartHolo:angles() + Percent*(AngDelta)
+	holoAng(Target, Ang)
+	
+	# scale
+	local Scale = holoScale(Start) + Percent*(holoScale(End) - holoScale(Start))
+	holoScale(Target, Scale)
+	
+	# colour
+	local Colour = StartHolo:getColor4() + Percent*(EndHolo:getColor4() - StartHolo:getColor4())
+	holoColor(Target, Colour)
+}
+
+function void holo_anim_tick() {
+	if (Holo_anim_queue:count() == 0) {
+		return
+	}
+	
+	local Keys = Holo_anim_queue:keys()
+	if (perf()) {
+		for (I = 1, Keys:count(), 1) {
+			local Key = Keys[I, number]
+			local T = Holo_anim_queue[Key, table]
+
+			local Type = T["type",string]
+			local Target = T["target",number]
+			local Start = T["start",number]
+			local End = T["end",number]
+			
+			local Duration = T["duration",number]
+			local Cur_tick = T["cur_tick",number]
+			local Percent = Cur_tick/Duration
+			
+			switch (Type) {
+				case "interpolate",
+					holo_anim_interpolate_properties(Target, Start, End, Percent)
+					break
+				default,
+					continue
+					break
+			}
+			
+			if (Cur_tick < Duration) {
+				T["cur_tick",number] = Cur_tick + 1
+				Holo_anim_queue[Key,table] = T
+			} else {
+				Holo_anim_queue:removeTable(Key)
+			}
+		}
+	}
+}
+
+if (first() | duped() | dupefinished()) {
+	holo_anim_setup()
+}
+
+####################
+# PUBLIC FUNCTIONS #
+####################
+
+function void holo_interpolate(Target:number, Start:number, End:number, Duration:number) {
+	# add holoEntity(Target) to the animation queue
+
+	# add to queue
+	local Queue_data = table()
+	Queue_data["type", string] = "interpolate"
+	Queue_data["target", number] = int(Target)
+	Queue_data["start", number] = int(Start)
+	Queue_data["end", number] = int(End)
+	Queue_data["cur_tick", number] = 0
+	Queue_data["duration", number] = int(Duration)
+	
+	Holo_anim_queue:insertTable(Target, Queue_data)
+}

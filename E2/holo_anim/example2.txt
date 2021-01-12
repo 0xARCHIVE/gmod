@@ -1,0 +1,75 @@
+@name Holo Animation Example 2
+
+@persist [Time Cur_anim Tick N N_rotating]:number
+
+function vector get_rainbow(I:number, MaxI:number) {
+    local Index = 255*(I/MaxI)
+    local R = round(sinr(0.024*Index + 0)*127 + 128)
+    local G = round(sinr(0.024*Index + 2)*127 + 128)
+    local B = round(sinr(0.024*Index + 4)*127 + 128)
+    return vec(R,G,B)
+}
+
+if (first()) {
+    #include "holo_anim/holo_anim"
+    runOnTick(1)
+    
+    N = 70
+    N_rotating = 10
+    R = 25
+    W = 10
+    F1 = 360/N
+    F2 = 2
+    Scale = 0.25
+    
+    Time = 5
+    Cur_anim = 0
+    Tick = 0
+    
+    Forward = 0
+    
+    holoCreate(999)
+    holoPos(999, entity():toWorld(vec(0,0,0)))
+    holoAng(999, entity():toWorld(ang(0,0,0)))
+    holoVisible(999, players(), 0)
+    holoParent(999, entity())
+    
+    for (I = 1, N, 1) {
+        Angle1 = F1*I
+        Angle2 = F2*Angle1
+        Angle3 = F2*W*cos(Angle2)
+        
+        holoCreate(I, entity():pos() + R*vec(sin(Angle1),cos(Angle1),0) + W*vec(0,0,0) + vec(0,0,0))
+        holoColor(I, get_rainbow(I, N))
+        holoScale(I, Scale*vec(1,1,1))
+        holoAng(I, ang(90-Angle3,-Angle1,0))
+        holoModel(I, "hq_torus_thin")
+        holoParent(I, 999)
+        holoVisible(I, players(), 0)
+    }
+    
+    for (I = 0, N_rotating) {
+        holoCreate(800+I)
+        holoModel(800+I, "hq_sphere")
+    }
+}
+
+holo_anim_tick()
+
+Tick++
+if (Tick%Time == 0) {
+    Tick = 0
+    Cur_anim++
+}
+
+if (Cur_anim%N == 0) {
+    Cur_anim = 0
+}
+
+if (changed(Cur_anim)) {
+    local Offset = 1
+    for (I = 0, N_rotating) {
+        local Index = (Cur_anim + I*Offset)%N
+        holo_interpolate(800+I, Index+1, (Index+1)%N + 1, Time)
+    }
+}

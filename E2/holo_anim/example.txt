@@ -1,0 +1,45 @@
+@name Holo Animation Example
+
+@persist [T I N Time]:number
+
+if (first()) {
+    #include "holo_anim/holo_anim"
+    runOnTick(1)
+    
+    T = 0
+    I = 0
+    N = randint(10,20)
+    Time = 50
+    
+    holoCreate(0, entity():pos()) # target
+    
+    for (I = 1, N+1, 1) {
+        holoCreate(I, entity():pos() + randvec(vec(0,0,0), vec(1,1,1))*100)
+
+        holoAng(I, (randvec()*360):toAngle())
+        holoColor(I, randvec()*255)
+        holoScale(I, randvec(vec(0.25,0.25,0.25), vec(2,2,2)))
+        holoAlpha(I, randint(125,255))
+        holoVisible(I, players(), 0)
+    }
+    
+    holo_interpolate(0, 1, 2, 100)
+}
+
+holo_anim_tick()
+
+T++
+
+if (T%Time == 0) {
+    T = 0
+    I++
+}
+
+if (I%N == 0) {
+    I = 0
+}
+
+if (changed(I)) {
+#    holo_interpolate(0, 1, 2, 100)
+    holo_interpolate(0, I+1, (I+1)%N + 1, Time)
+}

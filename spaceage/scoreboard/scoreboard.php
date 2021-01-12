@@ -2,6 +2,21 @@
 
 include_once('./libs/steamID.php');
 
+function get_player_list() {
+  $api_endpoint = "https://api.trackyserver.com/widget/index.php?id=663633";
+  $response = file_get_contents($api_endpoint);
+  $data = json_decode($response,true);
+
+  $players = array();
+  if (!array_key_exists("playerslist", $data)) { return $players; }
+  foreach($data["playerslist"] as $value) {
+    if (!array_key_exists("name", $value)) { continue; }
+    array_push($players, $value["name"]);
+  }
+
+  return $players;
+}
+
 $factions = array(
   "freelancer" => "Freelancers",
   "starfleet" => "Star Fleet",
@@ -30,6 +45,8 @@ $data = json_decode($response,true);
 
 // generate rows
 $html_rows = array();
+$player_list = get_player_list();
+
 foreach($data as $key => $row) {
   $rank = $key + 1;
   $name = $row["name"];
@@ -48,7 +65,8 @@ foreach($data as $key => $row) {
     "{faction}" => $faction,
     "{faction_name}" => $faction_name,
     "{faction_leader}" => $faction_leader ? "faction_leader" : "not_faction_leader",
-    "{community_id}" => SteamIDConverter::convert($steamid)
+    "{community_id}" => SteamIDConverter::convert($steamid),
+    "{online}" => in_array($name, $player_list) ? "online" : "not_online"
   );
 
   $html_row = strtr($row_template, $row_replacements);

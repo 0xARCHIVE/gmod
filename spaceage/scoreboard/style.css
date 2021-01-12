@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
+body {
+	font-family: 'Roboto', sans-serif;
+	background-color: #243140;
+	margin: 0;
+	padding: 0;
+}
+
+div#scoreboard {
+	width: 50em;
+	border: 0px solid black;
+	margin: auto;
+}
+
+p {
+	margin: 0;
+	padding: 0;
+}
+
+a {
+	text-decoration: none;
+	color: inherit;
+}
+
+.row {
+	font-weight: bold;
+	padding: 0.5em;
+	margin: 0.5em;
+	position: relative;
+}
+
+.block {
+	display: inline-block;
+}
+
+.faction_leader::before {
+	font-family: "Font Awesome 5 Free";
+	font-weight: 900;
+	content: "\f521";
+	position: absolute;
+	left: 4em;
+}
+
+.freelancer {
+	background-color: #9E8661;
+	color: #E3DCD2;
+	border: 1px solid #221D15;
+}
+
+.starfleet {
+	background-color: #D2D2D2;
+	color: #3C3C3C;
+	border: 1px solid #3C3C3C;
+}
+
+.legion {
+	background-color: #55DD22;
+	color: #CEF5C0;
+	border: 1px solid #122F07;
+}
+
+.miners {
+	background-color: #804000;
+	color: #FFC892;
+	border: 1px solid #221D15;
+}
+
+.corporation {
+	background-color: #0095FF;
+	color: #B6E1FF;
+	border: 1px solid #002037;
+}
+
+.alliance {
+	background-color: #E521DE;
+	color: #F8BFF6;
+	border: 1px solid #320630;
+}
+
+.unassigned {
+	background-color: #FFFF64;
+	color: #4C4D00;
+	border: 1px solid #4C4D00;
+}
+
+div#header {
+	color: #DAE1EA;
+	font-size: 2em;
+	text-align: center;
+	padding: 0.5em 0 0.25em 0;
+}
+
+div#footer {
+	color: #3A4F67;
+	font-size: 0.75em;
+	text-align: center;
+	padding: 0.75em 0 1.5em 0;
+}
+
+.text_center {
+	text-align: center;
+}
+
+.left {
+	float: left;
+}
+
+.right {
+	float: right;
+}
+
+.clear {
+	clear: both;
+}
+
+.w15 {
+	display: inline-block;
+	width: 15em;
+}
+
+.w10 {
+	display: inline-block;
+	width: 10em;
+}
+
+.w5 {
+	display: inline-block;
+	width: 5em;
+}
